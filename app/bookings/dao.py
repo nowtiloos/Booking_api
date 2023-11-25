@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select, and_, or_, func, insert
+from sqlalchemy import select, func, insert
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
