@@ -100,3 +100,41 @@ class BookingDAO(BaseDAO):
                 return new_booking.mappings().one()
             else:
                 raise RoomFullyBooked
+
+    @classmethod
+    async def get_bookings_for_user(cls,
+                                    user_id: int):
+        """SELECT bookings.room_id,
+                  bookings.user_id,
+                  bookings.date_from,
+                  bookings.date_to,
+                  bookings.price,
+                  bookings.total_cost,
+	              bookings.total_days,
+	              rooms.image_id,
+	              rooms.name,
+	              rooms.description,
+	              rooms.services
+           FROM bookings
+           JOIN rooms ON bookings.room_id = rooms.id
+           WHERE bookings.user_id = 1"""
+
+        async with async_session_maker() as session:
+            bookings = (
+                select(Bookings.room_id,
+                       Bookings.user_id,
+                       Bookings.date_from,
+                       Bookings.date_to,
+                       Bookings.price,
+                       Bookings.total_cost,
+                       Bookings.total_days,
+                       Rooms.image_id,
+                       Rooms.name,
+                       Rooms.description,
+                       Rooms.services)
+                .select_from(Bookings)
+                .join(Rooms, Bookings.room_id == Rooms.id)
+                .where(Bookings.user_id == user_id)
+            )
+            result = await session.execute(bookings)
+            return result.mappings().all()

@@ -16,8 +16,8 @@ router = APIRouter(
 
 
 @router.get('')
-async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking]:
-    return await BookingDAO.find_all(user_id=user.id)
+async def get_bookings(user: Users = Depends(get_current_user)) -> list[dict]:
+    return await BookingDAO.get_bookings_for_user(user_id=user.id)
 
 
 @router.post('')
@@ -31,3 +31,9 @@ async def add_booking(
     if not booking:
         raise RoomCannotBeBooked
     return booking
+
+
+@router.delete('/{booking_id}')
+async def delete_booking(booking_id: int,
+                         user: Users = Depends(get_current_user)):
+    return await BookingDAO.delete(user_id=user.id, id=booking_id)
