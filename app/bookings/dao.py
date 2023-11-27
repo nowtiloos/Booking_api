@@ -121,13 +121,7 @@ class BookingDAO(BaseDAO):
 
         async with async_session_maker() as session:
             bookings = (
-                select(Bookings.room_id,
-                       Bookings.user_id,
-                       Bookings.date_from,
-                       Bookings.date_to,
-                       Bookings.price,
-                       Bookings.total_cost,
-                       Bookings.total_days,
+                select(Bookings.__table__.columns,
                        Rooms.image_id,
                        Rooms.name,
                        Rooms.description,
