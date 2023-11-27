@@ -7,7 +7,6 @@ from app.users.dependencies import get_current_user
 from app.users.models import Users
 
 from app.bookings.dao import BookingDAO
-from app.bookings.schemas import SBooking
 
 router = APIRouter(
     prefix='/bookings',
