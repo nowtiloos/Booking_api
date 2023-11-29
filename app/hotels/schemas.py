@@ -8,3 +8,8 @@ class SHotels(BaseModel):
     services: dict
     rooms_quantity: int
     image_id: str
+
+    # Добавляем параметр from_attributes
+
+    class Config:
+        from_attributes = True

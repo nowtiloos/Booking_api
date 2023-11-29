@@ -10,3 +10,8 @@ class SRooms(BaseModel):
     services: dict
     quantity: int
     image_id: int
+
+    # Добавляем параметр from_attributes
+
+    class Config:
+        from_attributes = True
