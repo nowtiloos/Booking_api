@@ -10,13 +10,19 @@ from fastapi_cache.backends.redis import RedisBackend
 
 from redis import asyncio as aioredis
 
+from app.admin.views import UsersAdmin, BookingsAdmin, HotelsAdmin, RoomsAdmin
 from app.bookings.router import router as router_bookings
-from app.config import settings
+from app.users.models import Users
 from app.users.router import router_users, router_auth
 from app.hotels.router import router as router_hotels
 from app.hotels.rooms.router import router as router_rooms
 from app.pages.router import router as router_pages
 from app.images.router import router as router_images
+
+from app.config import settings
+from app.database import engine
+
+from sqladmin import Admin, ModelView
 
 
 @asynccontextmanager
@@ -53,6 +59,13 @@ app.add_middleware(
     allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers",
                    "Access-Control-Allow-Origin", "Authorization"],
 )
+
+admin = Admin(app, engine)
+
+admin.add_view(UsersAdmin)
+admin.add_view(BookingsAdmin)
+admin.add_view(HotelsAdmin)
+admin.add_view(RoomsAdmin)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
