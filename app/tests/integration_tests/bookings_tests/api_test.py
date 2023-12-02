@@ -30,3 +30,13 @@ async def test_add_and_get_booking(authenticated_ac: AsyncClient,
 
     response = await authenticated_ac.get("/bookings")
     assert len(response.json()) == booked_rooms
+
+
+@pytest.mark.usefixtures
+async def test_get_bookings_and_delete_booking(authenticated_ac: AsyncClient):
+    response = await authenticated_ac.get("/bookings")
+    assert len(response.json()) > 0
+    for booking in response.json():
+        await authenticated_ac.delete(f"/bookings/{booking['id']}")
+    response = await authenticated_ac.get("/bookings")
+    assert response.json() == []
