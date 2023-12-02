@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import select, func, insert
+from sqlalchemy import func, insert, select
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
@@ -14,11 +14,11 @@ class BookingDAO(BaseDAO):
 
     @classmethod
     async def add(
-            cls,
-            user_id: int,
-            room_id: int,
-            date_from: date,
-            date_to: date,
+        cls,
+        user_id: int,
+        room_id: int,
+        date_from: date,
+        date_to: date,
     ):
         """
         WITH booked_rooms AS (
@@ -37,11 +37,12 @@ class BookingDAO(BaseDAO):
                 select(Bookings)
                 .where(
                     (
-                            (Bookings.date_from >= date_from) &
-                            (Bookings.date_from <= date_to)
-                    ) | (
-                            (Bookings.date_from <= date_from) &
-                            (Bookings.date_to > date_from)
+                        (Bookings.date_from >= date_from)
+                        & (Bookings.date_from <= date_to)
+                    )
+                    | (
+                        (Bookings.date_from <= date_from)
+                        & (Bookings.date_to > date_from)
                     )
                 )
                 .cte("booked_rooms")
@@ -56,10 +57,12 @@ class BookingDAO(BaseDAO):
 
             get_rooms_left = (
                 select(
-                    (Rooms.quantity - func.count(booked_rooms.c.room_id).filter(
-                        booked_rooms.c.room_id.is_not(None))).label(
-                        "rooms_left"
-                    )
+                    (
+                        Rooms.quantity
+                        - func.count(booked_rooms.c.room_id).filter(
+                            booked_rooms.c.room_id.is_not(None)
+                        )
+                    ).label("rooms_left")
                 )
                 .select_from(Rooms)
                 .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
@@ -102,30 +105,31 @@ class BookingDAO(BaseDAO):
                 raise RoomFullyBooked
 
     @classmethod
-    async def get_bookings_for_user(cls,
-                                    user_id: int):
+    async def get_bookings_for_user(cls, user_id: int):
         """SELECT bookings.room_id,
-                  bookings.user_id,
-                  bookings.date_from,
-                  bookings.date_to,
-                  bookings.price,
-                  bookings.total_cost,
-	              bookings.total_days,
-	              rooms.image_id,
-	              rooms.name,
-	              rooms.description,
-	              rooms.services
-           FROM bookings
-           JOIN rooms ON bookings.room_id = rooms.id
-           WHERE bookings.user_id = 1"""
+               bookings.user_id,
+               bookings.date_from,
+               bookings.date_to,
+               bookings.price,
+               bookings.total_cost,
+                   bookings.total_days,
+                   rooms.image_id,
+                   rooms.name,
+                   rooms.description,
+                   rooms.services
+        FROM bookings
+        JOIN rooms ON bookings.room_id = rooms.id
+        WHERE bookings.user_id = 1"""
 
         async with async_session_maker() as session:
             bookings = (
-                select(Bookings.__table__.columns,
-                       Rooms.image_id,
-                       Rooms.name,
-                       Rooms.description,
-                       Rooms.services)
+                select(
+                    Bookings.__table__.columns,
+                    Rooms.image_id,
+                    Rooms.name,
+                    Rooms.description,
+                    Rooms.services,
+                )
                 .select_from(Bookings)
                 .join(Rooms, Bookings.room_id == Rooms.id)
                 .where(Bookings.user_id == user_id)

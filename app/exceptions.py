@@ -1,7 +1,9 @@
 from fastapi import HTTPException, status
 
 
-class BookingException(HTTPException):  # <-- наследуемся от HTTPException, который наследован от Exception
+class BookingException(
+    HTTPException
+):  # <-- наследуемся от HTTPException, который наследован от Exception
     status_code = 500  # <-- задаем значения по умолчанию
     detail = ""
 
@@ -11,27 +13,27 @@ class BookingException(HTTPException):  # <-- наследуемся от HTTPEx
 
 class UserAlreadyExistsException(BookingException):
     status_code = status.HTTP_409_CONFLICT
-    detail = 'Пользователь уже существует'
+    detail = "Пользователь уже существует"
 
 
 class IncorrectEmailOrPasswordException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
-    detail = 'Неверная почта или пароль'
+    detail = "Неверная почта или пароль"
 
 
 class TokenExpiredException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
-    detail = 'Токен истек'
+    detail = "Токен истек"
 
 
 class TokenAbsentException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
-    detail = 'Токен отсутствует'
+    detail = "Токен отсутствует"
 
 
 class IncorrectTokenFormatException(BookingException):
     status_code = status.HTTP_401_UNAUTHORIZED
-    detail = 'Неверный формат токена'
+    detail = "Неверный формат токена"
 
 
 class RoomFullyBooked(BookingException):

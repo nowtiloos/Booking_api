@@ -1,7 +1,7 @@
+from sqlalchemy import JSON, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from sqlalchemy import Integer, JSON
 
 
 class Hotels(Base):
@@ -18,4 +18,3 @@ class Hotels(Base):
 
     def __str__(self):
         return f"Отель {self.name} {self.location[:30]}"
-

@@ -14,9 +14,11 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        return (f'postgresql+asyncpg://{self.DB_USER}:'
-                f'{self.DB_PASS}@{self.DB_HOST}:'
-                f'{self.DB_PORT}/{self.DB_NAME}')
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:"
+            f"{self.DB_PASS}@{self.DB_HOST}:"
+            f"{self.DB_PORT}/{self.DB_NAME}"
+        )
 
     TEST_DB_HOST: str
     TEST_DB_PORT: int
@@ -26,9 +28,11 @@ class Settings(BaseSettings):
 
     @property
     def TEST_DATABASE_URL(self) -> str:
-        return (f'postgresql+asyncpg://{self.TEST_DB_USER}:'
-                f'{self.TEST_DB_PASS}@{self.TEST_DB_HOST}:'
-                f'{self.TEST_DB_PORT}/{self.TEST_DB_NAME}')
+        return (
+            f"postgresql+asyncpg://{self.TEST_DB_USER}:"
+            f"{self.TEST_DB_PASS}@{self.TEST_DB_HOST}:"
+            f"{self.TEST_DB_PORT}/{self.TEST_DB_NAME}"
+        )
 
     SECRET_KEY: str
     ALGORITHM: str
@@ -41,7 +45,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
-    model_config = SettingsConfigDict(env_file='.env')
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()

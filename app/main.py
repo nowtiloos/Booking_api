@@ -1,29 +1,24 @@
-import uvicorn
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-
 from redis import asyncio as aioredis
+from sqladmin import Admin
 
-from app.admin.views import UsersAdmin, BookingsAdmin, HotelsAdmin, RoomsAdmin
+from app.admin.auth import authentication_backend
+from app.admin.views import BookingsAdmin, HotelsAdmin, RoomsAdmin, UsersAdmin
 from app.bookings.router import router as router_bookings
-
-from app.users.router import router_users, router_auth
-from app.hotels.router import router as router_hotels
-from app.hotels.rooms.router import router as router_rooms
-from app.pages.router import router as router_pages
-from app.images.router import router as router_images
-
 from app.config import settings
 from app.database import engine
-from app.admin.auth import authentication_backend
-
-from sqladmin import Admin
+from app.hotels.rooms.router import router as router_rooms
+from app.hotels.router import router as router_hotels
+from app.images.router import router as router_images
+from app.pages.router import router as router_pages
+from app.users.router import router_auth, router_users
 
 
 @asynccontextmanager
@@ -36,9 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.mount(path='/static',
-          app=StaticFiles(directory='app/static'),
-          name='static')
+app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
 
 app.include_router(router_auth)
 app.include_router(router_users)
@@ -57,12 +50,16 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
-    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers",
-                   "Access-Control-Allow-Origin", "Authorization"],
+    allow_headers=[
+        "Content-Type",
+        "Set-Cookie",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Origin",
+        "Authorization",
+    ],
 )
 
-admin = Admin(app, engine,
-              authentication_backend=authentication_backend)
+admin = Admin(app, engine, authentication_backend=authentication_backend)
 
 admin.add_view(UsersAdmin)
 admin.add_view(BookingsAdmin)

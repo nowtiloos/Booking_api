@@ -1,7 +1,7 @@
+from sqlalchemy import JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from sqlalchemy import JSON, ForeignKey
 
 
 class Rooms(Base):
