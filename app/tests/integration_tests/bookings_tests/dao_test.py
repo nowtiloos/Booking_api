@@ -15,3 +15,9 @@ async def test_add_and_get_booking():
 
     new_booking = await BookingDAO.find_by_id(new_booking.id)
     assert new_booking is not None
+
+    temp_id = new_booking.id
+    await BookingDAO.delete(id=temp_id)
+
+    find_booking = await BookingDAO.find_by_id(temp_id)
+    assert find_booking is None
