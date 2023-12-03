@@ -2,6 +2,7 @@ import time
 
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,6 +34,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+sentry_sdk.init(
+    dsn="https://a494ee32d15efbc0ca0d22821302fe7f@o4506331148124160.ingest.sentry.io/4506331149959168",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
 
