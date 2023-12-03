@@ -1,9 +1,11 @@
 import time
+import sentry_sdk
+import uvicorn
 
 from contextlib import asynccontextmanager
 
-import sentry_sdk
-import uvicorn
+from fastapi_versioning import VersionedFastAPI
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -46,8 +48,6 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
-app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
-
 app.include_router(router_auth)
 app.include_router(router_users)
 app.include_router(router_bookings)
@@ -75,13 +75,6 @@ app.add_middleware(
     ],
 )
 
-admin = Admin(app, engine, authentication_backend=authentication_backend)
-
-admin.add_view(UsersAdmin)
-admin.add_view(BookingsAdmin)
-admin.add_view(HotelsAdmin)
-admin.add_view(RoomsAdmin)
-
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
@@ -94,6 +87,19 @@ async def add_process_time_header(request: Request, call_next):
     })
     return response
 
+
+app = VersionedFastAPI(app,
+                       version_format="{major}",
+                       prefix_format="/v{major}")
+
+app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
+
+admin = Admin(app, engine, authentication_backend=authentication_backend)
+
+admin.add_view(UsersAdmin)
+admin.add_view(BookingsAdmin)
+admin.add_view(HotelsAdmin)
+admin.add_view(RoomsAdmin)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
