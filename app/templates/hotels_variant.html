@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Набронировал</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .hotel-container {
+            display: flex;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .hotel-image {
+            max-width: 250px;
+            margin-right: 20px;
+            border-radius: 5px 0 0 5px;
+        }
+        .hotel-details {
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        h4 {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        {% for hotel in hotels %}
+        <div class="hotel-container">
+            <img class="hotel-image" src="{{ url_for('static', path='images/' + hotel.image_id|string + '.webp') }}"
+                alt="Фото отеля">
+            <div class="hotel-details">
+                <h1>{{hotel.name}}</h1>
+                <h4>{{hotel.location}}</h4>
+                <div>
+                    <h4>Номеров в отеле: {{hotel.rooms_quantity}}</h4>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

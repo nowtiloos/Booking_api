@@ -69,13 +69,16 @@ class BookingDAO(BaseDAO):
                         ).label("rooms_left")
                     )
                     .select_from(Rooms)
-                    .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
+                    .join(
+                        booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True
+                    )
                     .where(Rooms.id == room_id)
                     .group_by(Rooms.quantity, booked_rooms.c.room_id)
                 )
 
                 # Рекомендую выводить SQL запрос в консоль для сверки
-                # logger.debug(get_rooms_left.compile(engine, compile_kwargs={"literal_binds": True}))
+                # logger.debug(get_rooms_left.compile(engine,
+                #       compile_kwargs={"literal_binds": True}))
 
                 rooms_left = await session.execute(get_rooms_left)
                 rooms_left: int = rooms_left.scalar()
@@ -117,7 +120,7 @@ class BookingDAO(BaseDAO):
                 "user_id": user_id,
                 "room_id": room_id,
                 "date_from": date_from,
-                "date_to": date_to
+                "date_to": date_to,
             }
             logger.error(msg=msg, extra=extra, exc_info=True)
 

@@ -3,8 +3,7 @@ from datetime import date, datetime
 from fastapi import APIRouter, Query
 from fastapi_cache.decorator import cache
 
-from app.exceptions import (CannotBookHotelForLongPeriod,
-                            DateFromCannotBeAfterDateTo)
+from app.exceptions import CannotBookHotelForLongPeriod, DateFromCannotBeAfterDateTo
 from app.hotels.dao import HotelsDAO
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])

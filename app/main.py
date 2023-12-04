@@ -1,8 +1,5 @@
 import time
 import sentry_sdk
-import uvicorn
-
-from contextlib import asynccontextmanager
 
 from fastapi_versioning import VersionedFastAPI
 
@@ -26,26 +23,15 @@ from app.logger import logger
 from app.pages.router import router as router_pages
 from app.users.router import router_auth, router_users
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}")
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
-    yield
-    # logger.info("Service exited")
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="Бронирование Отелей",
+    version="0.1.0",
+    root_path="/api",
+)
 
 sentry_sdk.init(
-    dsn="https://a494ee32d15efbc0ca0d22821302fe7f@o4506331148124160.ingest.sentry.io/4506331149959168",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
+    dsn=settings.SENTRY_DSN,
     traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
 )
 
 app.include_router(router_auth)
@@ -75,24 +61,18 @@ app.add_middleware(
     ],
 )
 
-
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    # При подключении Prometheus + Grafana подобный лог не требуется
-    logger.info("Request handling time", extra={
-        "process_time": round(process_time, 4)
-    })
-    return response
+app = VersionedFastAPI(app, version_format="{major}", prefix_format="/v{major}")
 
 
-app = VersionedFastAPI(app,
-                       version_format="{major}",
-                       prefix_format="/v{major}")
+@app.on_event("startup")
+def startup():
+    redis = aioredis.from_url(
+        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+        encoding="utf8",
+        decode_responses=True,
+    )
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
 
-app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
 
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 
@@ -101,5 +81,14 @@ admin.add_view(BookingsAdmin)
 admin.add_view(HotelsAdmin)
 admin.add_view(RoomsAdmin)
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+app.mount(path="/static", app=StaticFiles(directory="app/static"), name="static")
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    # При подключении Prometheus + Grafana подобный лог не требуется
+    logger.info("Request handling time", extra={"process_time": round(process_time, 4)})
+    return response
