@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 from sqladmin import Admin
 
@@ -19,6 +20,8 @@ from app.database import engine
 from app.hotels.rooms.router import router as router_rooms
 from app.hotels.router import router as router_hotels
 from app.images.router import router as router_images
+from app.importer.router import router as router_importer
+from app.prometheus.router import router as router_prometheus
 from app.logger import logger
 from app.pages.router import router as router_pages
 from app.users.router import router_auth, router_users
@@ -41,6 +44,8 @@ app.include_router(router_hotels)
 app.include_router(router_rooms)
 app.include_router(router_pages)
 app.include_router(router_images)
+app.include_router(router_importer)
+app.include_router(router_prometheus)
 
 origins = [
     # 3000 - порт, на котором работает фронтенд на React.js
@@ -73,6 +78,12 @@ def startup():
     )
     FastAPICache.init(RedisBackend(redis), prefix="cache")
 
+
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    excluded_handlers=[".*admin.*", "/metrics"],
+)
+instrumentator.instrument(app).expose(app)
 
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 
