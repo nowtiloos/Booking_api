@@ -28,7 +28,7 @@ class BaseDAO:
             return result.mappings().one_or_none()
 
     @classmethod
-    async def add(cls, **data):
+    async def add(cls, data: dict):
         async with async_session_maker() as session:
             query = insert(cls.model).values(**data)
             await session.execute(query)
