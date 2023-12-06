@@ -30,8 +30,7 @@ docker build .
 ### Docker compose
 Для запуска всех сервисов (БД, Redis, веб-сервер (FastAPI), Celery, Flower, Grafana, Prometheus) необходимо использовать файл docker-compose.yml и команды
 ```
-docker compose build
-docker compose up
+docker-compose up --build
 ```
 Причем `build` команду нужно запускать, только если вы меняли что-то внутри Dockerfile, то есть меняли логику составления образа.
 
